@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AdvisorAI — Academic Advising Assistant</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --cream:    #faf8f3;
+  --parchment:#f0ead6;
+  --border:   #ddd5c0;
+  --green:    #1a3d2b;
+  --green-mid:#2d6448;
+  --green-lt: #3d8c60;
+  --gold:     #b8860b;
+  --gold-lt:  #d4a017;
+  --text:     #1c1a16;
+  --muted:    #6b6456;
+  --dim:      #9e9282;
+  --shadow:   0 2px 16px rgba(26,61,43,.10);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+
+body {
+  background: var(--cream);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 300;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+}
+
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background-image:
+    linear-gradient(rgba(180,165,130,.12) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(180,165,130,.12) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none; z-index: 0;
+}
+
+/* ── TOP BAR ── */
+.topbar {
+  flex-shrink: 0;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: .9rem 1.5rem;
+  background: var(--green);
+  box-shadow: 0 2px 8px rgba(0,0,0,.18);
+  z-index: 10; position: relative;
+}
+.topbar-logo { display: flex; align-items: center; gap: .65rem; }
+.topbar-icon {
+  width: 30px; height: 30px;
+  background: rgba(255,255,255,.12);
+  border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+}
+.topbar-icon svg { width: 16px; height: 16px; stroke: #fff; fill: none; stroke-width: 2.2; stroke-linecap: round; }
+.topbar-name {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.1rem; font-weight: 700; color: #fff;
+}
+.topbar-name span { color: var(--gold-lt); }
+.topbar-right { display: flex; align-items: center; gap: .75rem; }
+.topbar-tag {
+  font-family: 'DM Mono', monospace;
+  font-size: .62rem; letter-spacing: .08em;
+  color: rgba(255,255,255,.5); text-transform: uppercase;
+}
+@media (max-width: 500px) { .topbar-tag { display: none; } }
+
+.icon-btn {
+  background: rgba(255,255,255,.1);
+  border: 1px solid rgba(255,255,255,.15);
+  border-radius: 5px; cursor: pointer;
+  padding: .35rem .55rem;
+  display: flex; align-items: center; gap: .35rem;
+  color: rgba(255,255,255,.75);
+  font-size: .72rem; font-family: 'DM Sans', sans-serif;
+  transition: background .2s;
+}
+.icon-btn:hover { background: rgba(255,255,255,.2); color: #fff; }
+.icon-btn svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2; }
+
+/* ── CHAT AREA ── */
+.chat-body {
+  flex: 1; overflow-y: auto;
+  padding: 1.5rem;
+  display: flex; flex-direction: column; gap: 1rem;
+  scroll-behavior: smooth;
+  position: relative; z-index: 1;
+}
+.chat-body::-webkit-scrollbar { width: 5px; }
+.chat-body::-webkit-scrollbar-track { background: transparent; }
+.chat-body::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+/* ── WELCOME ── */
+.welcome {
+  max-width: 640px; margin: 0 auto;
+  text-align: center; padding: 2rem 1rem 1rem;
+  animation: fadeUp .5s ease both;
+}
+.welcome-icon {
+  width: 60px; height: 60px;
+  background: var(--green);
+  border-radius: 14px; margin: 0 auto 1.25rem;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 4px 20px rgba(26,61,43,.25);
+}
+.welcome-icon svg { width: 30px; height: 30px; stroke: #fff; fill: none; stroke-width: 1.8; stroke-linecap: round; }
+.welcome h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.6rem; font-weight: 700;
+  color: var(--green); margin-bottom: .5rem;
+}
+.welcome p {
+  font-size: .9rem; color: var(--muted);
+  line-height: 1.7; margin-bottom: 1.5rem;
+}
+.starter-grid {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: .6rem; text-align: left;
+}
+@media (max-width: 480px) { .starter-grid { grid-template-columns: 1fr; } }
+.starter-btn {
+  background: #fff;
+  border: 1.5px solid var(--border);
+  border-radius: 8px; padding: .8rem 1rem;
+  cursor: pointer; text-align: left;
+  transition: border-color .18s, box-shadow .18s;
+  font-family: 'DM Sans', sans-serif;
+}
+.starter-btn:hover {
+  border-color: var(--green-lt);
+  box-shadow: 0 2px 10px rgba(26,61,43,.1);
+}
+.starter-icon { font-size: 1.1rem; margin-bottom: .3rem; }
+.starter-title { font-size: .82rem; font-weight: 500; color: var(--text); }
+.starter-sub { font-size: .72rem; color: var(--dim); margin-top: .15rem; }
+
+/* ── MESSAGES ── */
+.msg {
+  display: flex; gap: .75rem;
+  max-width: 760px; width: 100%;
+  animation: fadeUp .3s ease both;
+}
+.msg.user { align-self: flex-end; flex-direction: row-reverse; }
+.msg.ai   { align-self: flex-start; }
+
+.avatar {
+  width: 30px; height: 30px; border-radius: 6px;
+  flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+  font-size: .75rem; font-weight: 600;
+  align-self: flex-end;
+}
+.msg.user .avatar { background: var(--green); color: #fff; }
+.msg.ai   .avatar { background: var(--parchment); border: 1px solid var(--border); color: var(--green); }
+
+.bubble {
+  max-width: calc(100% - 42px);
+  padding: .85rem 1.1rem;
+  border-radius: 12px;
+  font-size: .9rem; line-height: 1.75;
+}
+.msg.user .bubble {
+  background: var(--green); color: #fff;
+  border-bottom-right-radius: 3px;
+}
+.msg.ai .bubble {
+  background: #fff;
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-bottom-left-radius: 3px;
+  box-shadow: 0 1px 4px rgba(0,0,0,.06);
+}
+
+.bubble h3 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1rem; font-weight: 600;
+  color: var(--green); margin: .9rem 0 .35rem;
+}
+.bubble h3:first-child { margin-top: 0; }
+.bubble strong { font-weight: 500; color: var(--text); }
+.bubble ul, .bubble ol { padding-left: 1.4rem; margin: .5rem 0; }
+.bubble li { margin: .25rem 0; }
+.bubble p  { margin: .4rem 0; }
+.bubble p:first-child { margin-top: 0; }
+.bubble p:last-child  { margin-bottom: 0; }
+.bubble code {
+  font-family: 'DM Mono', monospace; font-size: .78em;
+  background: var(--parchment); padding: .1em .35em;
+  border-radius: 3px; color: var(--green);
+}
+.bubble .course-pill {
+  display: inline-block;
+  background: #f0f7f3; border: 1px solid #c3dccb;
+  border-radius: 4px; padding: .1rem .5rem;
+  font-family: 'DM Mono', monospace; font-size: .72em;
+  color: var(--green-mid); margin: .1rem;
+}
+
+.cursor {
+  display: inline-block; width: 2px; height: 1em;
+  background: var(--green-lt); vertical-align: text-bottom;
+  animation: blink .8s infinite; margin-left: 1px;
+}
+
+.disclaimer {
+  background: #fff9ec; border: 1px solid #e8d99a;
+  border-radius: 6px; padding: .6rem .9rem;
+  font-size: .75rem; color: #7a6520;
+  display: flex; gap: .5rem; align-items: flex-start;
+  max-width: 760px; align-self: flex-start;
+}
+.disclaimer svg { width: 14px; height: 14px; flex-shrink: 0; margin-top: 1px; stroke: #b8860b; fill: none; stroke-width: 2; }
+
+/* ── INPUT BAR ── */
+.input-bar {
+  flex-shrink: 0;
+  padding: .9rem 1.25rem 1rem;
+  background: rgba(250,248,243,.95);
+  border-top: 1px solid var(--border);
+  backdrop-filter: blur(8px);
+  position: relative; z-index: 1;
+}
+.input-row {
+  display: flex; gap: .6rem; align-items: flex-end;
+  max-width: 760px; margin: 0 auto;
+}
+#user-input {
+  flex: 1;
+  min-height: 44px; max-height: 140px;
+  padding: .7rem 1rem;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  background: #fff;
+  font-family: 'DM Sans', sans-serif;
+  font-size: .9rem; color: var(--text);
+  resize: none; outline: none;
+  transition: border-color .2s; line-height: 1.5;
+}
+#user-input:focus { border-color: var(--green-lt); }
+#user-input::placeholder { color: var(--dim); }
+
+.send-btn {
+  width: 44px; height: 44px; flex-shrink: 0;
+  background: var(--green);
+  border: none; border-radius: 10px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background .18s, transform .1s;
+}
+.send-btn:hover:not(:disabled) { background: var(--green-mid); }
+.send-btn:active { transform: scale(.95); }
+.send-btn:disabled { background: var(--border); cursor: not-allowed; }
+.send-btn svg { width: 18px; height: 18px; stroke: #fff; fill: none; stroke-width: 2.2; stroke-linecap: round; }
+
+.input-hint {
+  text-align: center; margin-top: .5rem;
+  font-size: .68rem; color: var(--dim);
+  font-family: 'DM Mono', monospace; letter-spacing: .03em;
+}
+
+/* ── LOADING DOTS ── */
+.dots span {
+  display: inline-block; width: 7px; height: 7px;
+  background: var(--border); border-radius: 50%;
+  margin: 0 2px; animation: bounce .9s infinite;
+}
+.dots span:nth-child(2) { animation-delay: .15s; }
+.dots span:nth-child(3) { animation-delay: .30s; }
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes blink { 0%,100% { opacity:1; } 50% { opacity:0; } }
+@keyframes bounce {
+  0%,60%,100% { transform: translateY(0); }
+  30%          { transform: translateY(-5px); }
+}
+</style>
+</head>
+<body>
+
+  <div class="topbar">
+    <div class="topbar-logo">
+      <div class="topbar-icon">
+        <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+      </div>
+      <div class="topbar-name">Advisor<span>AI</span></div>
+    </div>
+    <div class="topbar-right">
+      <span class="topbar-tag">Academic Advising Assistant</span>
+      <button class="icon-btn" id="clear-btn">
+        <svg viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.5"/></svg>
+        New Chat
+      </button>
+    </div>
+  </div>
+
+  <div class="chat-body" id="chat-body"></div>
+
+  <div class="input-bar">
+    <div class="input-row">
+      <textarea id="user-input" rows="1"
+        placeholder="Tell me your major, courses completed, and career goal…"></textarea>
+      <button class="send-btn" id="send-btn">
+        <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+      </button>
+    </div>
+    <div class="input-hint">Enter to send · Shift+Enter for new line</div>
+  </div>
+
+<script>
+
+
+const SYSTEM_PROMPT = `You are AdvisorAI, a warm, knowledgeable academic advisor at a regional university's College of Business. Your job is to help students plan their course sequences, navigate prerequisites, and connect coursework to career goals.
+
+Tone: Friendly, encouraging, direct. Never condescending. Speak like a real advisor who genuinely wants students to succeed — not like a brochure.
+
+What you do well:
+- Take a student's current completed courses, declared major, and career goal, then recommend a specific course sequence (by quarter or semester) with clear reasoning for each choice.
+- Identify prerequisite chains and flag if a student might be blocked.
+- Connect courses to concrete career outcomes ("BUS 340 is often the first thing recruiters ask about for operations roles").
+- Flag when a double major, transfer credit, or exception situation is outside your reliable scope and the student should verify with a human advisor.
+- Be honest when you're uncertain rather than confidently wrong.
+
+Format course recommendations clearly using this style:
+- **Course Name (DEPT 101)** — brief reason why it fits now
+
+Always end course-sequence recommendations with: "I'm an AI — please verify this with a human advisor before registering, especially if you have transfer credits, a double major, or any exceptions."
+
+If a student asks something vague, ask 1–2 focused follow-up questions. Don't make up course numbers unless the student mentions them. Keep responses focused and scannable. Use headers for multi-part answers.`;
+
+let history   = [];
+let streaming = false;
+
+const starters = [
+  {
+    icon: '🎯',
+    title: 'Plan my next two quarters',
+    sub: 'Get a personalized course sequence',
+    prompt: "I'm a junior studying Management Information Systems. I've completed MIS 101, MIS 201, BUS 220, and MATH 140. My goal is to work as a business systems analyst after graduation. What should I take the next two quarters?"
+  },
+  {
+    icon: '🔁',
+    title: 'I changed my major',
+    sub: "Figure out what transfers and what doesn't",
+    prompt: "I just changed my major from Marketing to MIS. I've completed MKTG 301, BUS 220, ECON 101, and some gen eds. What do I need to take, and how long will it add to my graduation timeline?"
+  },
+  {
+    icon: '💼',
+    title: 'Match courses to a career goal',
+    sub: 'AI / data / product / consulting',
+    prompt: "I want to work in AI consulting after I graduate. I'm a sophomore in the College of Business. What courses and skills should I be building toward, and is there a sequence that makes sense?"
+  },
+  {
+    icon: '⚠️',
+    title: 'Check my prerequisite chain',
+    sub: "Make sure I'm not blocked",
+    prompt: "I want to take MIS 435 (AI in Business) next quarter. I've completed MIS 101, MIS 201, and BUS 220. Am I missing any prerequisites, and if so what's the fastest path?"
+  }
+];
+
+// ── WELCOME ───────────────────────────────────────────────────
+function renderWelcome() {
+  const body = document.getElementById('chat-body');
+  body.innerHTML = '';
+  const w = document.createElement('div');
+  w.className = 'welcome';
+  w.innerHTML = `
+    <div class="welcome-icon">
+      <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+    </div>
+    <h2>Hi, I'm AdvisorAI</h2>
+    <p>Tell me your <strong>major</strong>, the <strong>courses you've already completed</strong>, and your <strong>career goal</strong> — I'll build you a recommended course sequence with explanations for each step.</p>
+    <div class="starter-grid">
+      ${starters.map((s,i) => `
+        <button class="starter-btn" data-i="${i}">
+          <div class="starter-icon">${s.icon}</div>
+          <div class="starter-title">${s.title}</div>
+          <div class="starter-sub">${s.sub}</div>
+        </button>`).join('')}
+    </div>`;
+  body.appendChild(w);
+  body.querySelectorAll('.starter-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      sendMessage(starters[+btn.dataset.i].prompt);
+    });
+  });
+}
+
+document.getElementById('clear-btn').addEventListener('click', () => {
+  history = [];
+  renderWelcome();
+});
+
+// ── INPUT ─────────────────────────────────────────────────────
+const inputEl = document.getElementById('user-input');
+const sendBtn = document.getElementById('send-btn');
+
+inputEl.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    if (!streaming) triggerSend();
+  }
+});
+sendBtn.addEventListener('click', () => { if (!streaming) triggerSend(); });
+
+inputEl.addEventListener('input', () => {
+  inputEl.style.height = 'auto';
+  inputEl.style.height = Math.min(inputEl.scrollHeight, 140) + 'px';
+});
+
+function triggerSend() {
+  const text = inputEl.value.trim();
+  if (!text) return;
+  inputEl.value = '';
+  inputEl.style.height = 'auto';
+  sendMessage(text);
+}
+
+// ── SEND / STREAM ─────────────────────────────────────────────
+async function sendMessage(text) {
+  const body = document.getElementById('chat-body');
+  const welcome = body.querySelector('.welcome');
+  if (welcome) welcome.remove();
+
+  appendMessage('user', text);
+  history.push({ role: 'user', content: text });
+
+  const aiMsg = appendMessage('ai', null);
+  const bubble = aiMsg.querySelector('.bubble');
+  bubble.innerHTML = '<div class="dots"><span></span><span></span><span></span></div>';
+
+  streaming = true;
+  sendBtn.disabled = true;
+  scrollToBottom();
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'anthropic-version': '2023-06-01'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1500,
+        system: SYSTEM_PROMPT,
+        stream: true,
+        messages: history
+      })
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(()=>({}));
+      throw new Error(err?.error?.message || `API error ${res.status}`);
+    }
+
+    const reader  = res.body.getReader();
+    const decoder = new TextDecoder();
+    let fullText  = '';
+    bubble.innerHTML = '<span class="cursor"></span>';
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      const lines = decoder.decode(value, { stream: true }).split('\n');
+      for (const line of lines) {
+        if (!line.startsWith('data: ')) continue;
+        const data = line.slice(6).trim();
+        if (data === '[DONE]') continue;
+        try {
+          const json = JSON.parse(data);
+          if (json.type === 'content_block_delta' && json.delta?.text) {
+            fullText += json.delta.text;
+            bubble.innerHTML = renderMarkdown(fullText) + '<span class="cursor"></span>';
+            scrollToBottom();
+          }
+        } catch(_) {}
+      }
+    }
+
+    bubble.innerHTML = renderMarkdown(fullText);
+    history.push({ role: 'assistant', content: fullText });
+
+    if (history.filter(m => m.role === 'assistant').length === 1) {
+      const disc = document.createElement('div');
+      disc.className = 'disclaimer';
+      disc.innerHTML = `<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <span>AdvisorAI can make mistakes — always verify course requirements and prerequisites with a human advisor or your university's degree audit tool before registering.</span>`;
+      body.appendChild(disc);
+    }
+
+  } catch (err) {
+    bubble.innerHTML = `<span style="color:#c0392b">⚠️ ${escHtml(err.message)}</span><br>
+      <small style="color:var(--dim)">Something went wrong — try refreshing and sending again.</small>`;
+    history.pop();
+  }
+
+  streaming = false;
+  sendBtn.disabled = false;
+  scrollToBottom();
+}
+
+// ── HELPERS ───────────────────────────────────────────────────
+function appendMessage(role, text) {
+  const body = document.getElementById('chat-body');
+  const wrap = document.createElement('div');
+  wrap.className = `msg ${role}`;
+  wrap.innerHTML = `
+    <div class="avatar">${role === 'user' ? 'You' : 'AI'}</div>
+    <div class="bubble">${text ? (role === 'user' ? escHtml(text) : renderMarkdown(text)) : ''}</div>`;
+  body.appendChild(wrap);
+  scrollToBottom();
+  return wrap;
+}
+
+function scrollToBottom() {
+  const body = document.getElementById('chat-body');
+  body.scrollTop = body.scrollHeight;
+}
+
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function renderMarkdown(text) {
+  let h = text;
+  h = h.replace(/^### (.+)$/gm, '<h3>$1</h3>');
+  h = h.replace(/^## (.+)$/gm,  '<h3>$1</h3>');
+  h = h.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+  h = h.replace(/\*(.+?)\*/g, '<em>$1</em>');
+  h = h.replace(/`([^`]+)`/g, (_, c) => {
+    return /^[A-Z]{2,6}\s?\d{3}/.test(c.trim())
+      ? `<span class="course-pill">${escHtml(c)}</span>`
+      : `<code>${escHtml(c)}</code>`;
+  });
+  h = h.replace(/^[-•]\s(.+)$/gm, '<li>$1</li>');
+  h = h.replace(/(<li>.*<\/li>\n?)+/g, s => `<ul>${s}</ul>`);
+  h = h.replace(/^\d+\.\s(.+)$/gm, '<li>$1</li>');
+  const blocks = h.split(/\n{2,}/);
+  h = blocks.map(b => {
+    b = b.trim();
+    if (!b) return '';
+    if (b.startsWith('<h3>') || b.startsWith('<ul>') || b.startsWith('<ol>')) return b;
+    return `<p>${b.replace(/\n/g,'<br>')}</p>`;
+  }).join('');
+  return h;
+}
+
+// ── INIT ──────────────────────────────────────────────────────
+renderWelcome();
+</script>
+</body>
+</html>
