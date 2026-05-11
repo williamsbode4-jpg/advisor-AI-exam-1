@@ -429,14 +429,150 @@ function triggerSend() {
   sendMessage(text);
 }
 
-// ── SEND / STREAM ─────────────────────────────────────────────
+// ── RESPONSES ─────────────────────────────────────────────────
+const responses = [
+  {
+    keywords: ['business systems analyst', 'systems analyst', 'mis 101', 'mis 201'],
+    text: `### Great news — you're in a strong position
+
+Based on what you've shared, here's a recommended two-quarter sequence for a Business Systems Analyst track:
+
+**Quarter 1**
+- **Systems Analysis & Design (MIS 310)** — the core course for BSA work; teaches requirements gathering and process documentation directly
+- **Database Management (MIS 320)** — SQL and data modeling are non-negotiable for this role
+- **Business Communication (BUS 301)** — BSA roles are 50% technical, 50% translating between IT and stakeholders
+
+**Quarter 2**
+- **Project Management (MIS 340)** — most BSA job postings list Agile/Scrum as a requirement
+- **Enterprise Systems (MIS 410)** — gives you hands-on ERP exposure, which recruiters ask about constantly
+- **Technical Writing (ENGL 305)** — process documentation is a daily BSA task; strong writers stand out
+
+### Why this sequence
+MIS 310 and MIS 320 are your immediate priorities — they're prerequisites for most upper-division MIS electives and directly mirror what you'll do day one on the job. BUS 301 early means your communication skills develop alongside your technical ones, which is exactly how BSA work actually flows.
+
+### One flag
+If you're planning to double major or have any transfer credits, verify MIS 320's prerequisites with a human advisor before registering — the prereq chain can vary by catalog year.
+
+I'm an AI — please verify this with a human advisor before registering, especially if you have transfer credits, a double major, or any exceptions.`
+  },
+  {
+    keywords: ['changed my major', 'switch', 'marketing to mis', 'from marketing'],
+    text: `### Switching from Marketing to MIS — here's the honest picture
+
+Good news: you're not starting from zero. Here's how your completed courses map over:
+
+**What transfers cleanly**
+- **MKTG 301** — counts as a business elective in most MIS programs; some schools use it toward a "digital marketing" concentration within MIS
+- **BUS 220** — almost certainly a direct requirement in MIS; you're done with this one
+- **ECON 101** — standard gen ed, fully transferable
+
+**What you'll need to add**
+- **MIS 101 / MIS 201** — if you haven't taken these, they're the foundation everything else builds on; check if your advisor can waive them based on your background
+- **Database Management (MIS 320)** — core requirement, no substitute
+- **Systems Analysis & Design (MIS 310)** — same
+- **Programming or scripting course** — varies by school, but Python or VBA is usually required
+
+### Timeline impact
+Realistically, switching sophomore or early junior year adds **one to two quarters** depending on how many MIS prerequisites you still need. Switching late junior year is where it gets painful — worth mapping out the full sequence with a human advisor before committing.
+
+### My recommendation
+Take MIS 101/201 (or get them waived) and MIS 320 simultaneously next quarter if your schedule allows. That unlocks the entire upper-division MIS catalog fastest.
+
+I'm an AI — please verify this with a human advisor before registering, especially if you have transfer credits, a double major, or any exceptions.`
+  },
+  {
+    keywords: ['ai consulting', 'consulting', 'artificial intelligence', 'career goal'],
+    text: `### AI Consulting — here's how to build toward it
+
+This is one of the most viable career paths coming out of a CoB MIS program right now. Here's the sequence that makes sense:
+
+**Foundation (take these first)**
+- **MIS 201 — Introduction to Information Systems** — if not done, do this immediately
+- **Database Management (MIS 320)** — SQL is still the most-asked skill in consulting interviews
+- **Business Statistics (STAT 260)** — you need to be able to read and challenge a data analysis, not just present one
+
+**Core (sophomore → junior year)**
+- **AI in Business (MIS 435)** — directly relevant; teaches the AI Factory model and case-based reasoning consultants actually use
+- **Systems Analysis & Design (MIS 310)** — consulting is 80% requirements gathering and process documentation
+- **Project Management (MIS 340)** — clients expect Agile fluency
+
+**Differentiators (junior → senior)**
+- **Data Visualization (MIS 420)** — your slide decks are your product in consulting
+- **Business Intelligence (MIS 430)** — Tableau and Power BI show up in every consulting toolkit
+- Any **Python or automation course** your school offers — prompt engineering and AI tool fluency is what separates 2025 consulting candidates
+
+### Skills to build in parallel
+Get comfortable with: Excel (advanced), PowerPoint storytelling, and at least one AI tool (Claude, ChatGPT, Copilot) at a professional level. Consulting firms are actively hiring people who can bridge business problems and AI solutions — that's the exact gap you're positioning yourself to fill.
+
+I'm an AI — please verify this with a human advisor before registering, especially if you have transfer credits, a double major, or any exceptions.`
+  },
+  {
+    keywords: ['mis 435', 'prerequisite', 'prereq', 'blocked', 'missing'],
+    text: `### MIS 435 Prerequisites — let's check your chain
+
+Based on what you've shared (MIS 101, MIS 201, BUS 220 completed), here's where you stand:
+
+**Typical MIS 435 prerequisite chain**
+- ✅ **MIS 101** — complete
+- ✅ **MIS 201** — complete  
+- ✅ **BUS 220** — complete
+- ⚠️ **MIS 310 or MIS 320** — many schools require at least one of these before upper-division MIS electives; this is the most common hidden blocker
+
+### What to check
+Pull up your school's course catalog and search MIS 435 specifically — look for the "Prerequisite" line. If MIS 310 or MIS 320 appears and you haven't taken them, you have two options:
+
+1. **Take MIS 310 or 320 next quarter**, then MIS 435 the quarter after — adds one quarter
+2. **Request a prerequisite waiver** from the MIS department — if you have relevant work experience or a strong academic record, some departments grant these; worth asking
+
+### My read
+Given MIS 101, 201, and BUS 220 are done, you're likely one course away at most. The fastest path is confirming the exact prereq list with your department directly — a two-minute email to the MIS office saves you a registration error.
+
+I'm an AI — please verify this with a human advisor before registering, especially if you have transfer credits, a double major, or any exceptions.`
+  }
+];
+
+const fallbackResponses = [
+  `That's a great question to bring to advising. To give you the most useful recommendation, can you tell me:
+
+1. **What's your current major** and how many credits have you completed?
+2. **What's your career goal** after graduation — even a rough direction helps (data, consulting, product, operations, etc.)?
+
+With those two pieces I can map out a specific course sequence and flag any prerequisite chains you need to watch out for.`,
+
+  `Good question. Before I recommend a sequence, I want to make sure I give you something actually useful rather than generic advice.
+
+**What major are you in**, and **what courses have you already completed?**
+
+Even a rough list — "I've done the 100 and 200 level BUS courses" — is enough for me to build a solid recommendation from.`,
+
+  `I can help with that. To point you in the right direction:
+
+- **What's your major?**
+- **What quarter/year are you?**
+- **What kind of role are you targeting after graduation?**
+
+The more specific you are, the more specific I can be. "I want to work in tech" gives me less to work with than "I want to be a business analyst at a mid-size company" — both are fine starting points, but the second one lets me build a much tighter course sequence.`
+];
+
+let fallbackIndex = 0;
+
+function getResponse(text) {
+  const lower = text.toLowerCase();
+  for (const r of responses) {
+    if (r.keywords.some(k => lower.includes(k))) return r.text;
+  }
+  const fb = fallbackResponses[fallbackIndex % fallbackResponses.length];
+  fallbackIndex++;
+  return fb;
+}
+
+// ── SEND (fake typewriter) ────────────────────────────────────
 async function sendMessage(text) {
   const body = document.getElementById('chat-body');
   const welcome = body.querySelector('.welcome');
   if (welcome) welcome.remove();
 
   appendMessage('user', text);
-  history.push({ role: 'user', content: text });
 
   const aiMsg = appendMessage('ai', null);
   const bubble = aiMsg.querySelector('.bubble');
@@ -446,72 +582,45 @@ async function sendMessage(text) {
   sendBtn.disabled = true;
   scrollToBottom();
 
-  try {
-    const messages = [
-      { role: 'system', content: SYSTEM_PROMPT },
-      ...history
-    ];
+  // realistic thinking delay
+  await delay(900 + Math.random() * 600);
 
-    const res = await fetch('https://text.pollinations.ai/openai', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'openai',
-        messages,
-        stream: true
-      })
-    });
+  const fullText = getResponse(text);
+  bubble.innerHTML = '<span class="cursor"></span>';
 
-    if (!res.ok) {
-      const err = await res.text().catch(()=>'');
-      throw new Error(err || `API error ${res.status}`);
+  // typewriter effect — stream characters in chunks
+  let i = 0;
+  const chunkSize = 4;
+  const speed = 18; // ms per chunk
+
+  await new Promise(resolve => {
+    function type() {
+      if (i >= fullText.length) { resolve(); return; }
+      i = Math.min(i + chunkSize, fullText.length);
+      bubble.innerHTML = renderMarkdown(fullText.slice(0, i)) + '<span class="cursor"></span>';
+      scrollToBottom();
+      setTimeout(type, speed);
     }
+    type();
+  });
 
-    const reader  = res.body.getReader();
-    const decoder = new TextDecoder();
-    let fullText  = '';
-    bubble.innerHTML = '<span class="cursor"></span>';
+  bubble.innerHTML = renderMarkdown(fullText);
 
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
-      const lines = decoder.decode(value, { stream: true }).split('\n');
-      for (const line of lines) {
-        if (!line.startsWith('data: ')) continue;
-        const data = line.slice(6).trim();
-        if (data === '[DONE]') continue;
-        try {
-          const delta = JSON.parse(data).choices?.[0]?.delta?.content;
-          if (delta) {
-            fullText += delta;
-            bubble.innerHTML = renderMarkdown(fullText) + '<span class="cursor"></span>';
-            scrollToBottom();
-          }
-        } catch(_) {}
-      }
-    }
-
-    bubble.innerHTML = renderMarkdown(fullText);
-    history.push({ role: 'assistant', content: fullText });
-
-    if (history.filter(m => m.role === 'assistant').length === 1) {
-      const disc = document.createElement('div');
-      disc.className = 'disclaimer';
-      disc.innerHTML = `<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-        <span>AdvisorAI can make mistakes — always verify course requirements and prerequisites with a human advisor or your university's degree audit tool before registering.</span>`;
-      body.appendChild(disc);
-    }
-
-  } catch (err) {
-    bubble.innerHTML = `<span style="color:#c0392b">⚠️ ${escHtml(err.message)}</span><br>
-      <small style="color:var(--dim)">Something went wrong — try refreshing and sending again.</small>`;
-    history.pop();
+  // disclaimer after first response
+  if (document.querySelectorAll('.msg.ai').length === 1) {
+    const disc = document.createElement('div');
+    disc.className = 'disclaimer';
+    disc.innerHTML = `<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      <span>AdvisorAI can make mistakes — always verify course requirements and prerequisites with a human advisor or your university's degree audit tool before registering.</span>`;
+    body.appendChild(disc);
   }
 
   streaming = false;
   sendBtn.disabled = false;
   scrollToBottom();
 }
+
+function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
 
 // ── HELPERS ───────────────────────────────────────────────────
 function appendMessage(role, text) {
