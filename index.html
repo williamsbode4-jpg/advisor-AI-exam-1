@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -320,7 +321,7 @@ body::before {
 <script>
 
 
-const API_KEY = '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';
+
 
 const SYSTEM_PROMPT = `You are AdvisorAI, a warm, knowledgeable academic advisor at a regional university's College of Business. Your job is to help students plan their course sequences, navigate prerequisites, and connect coursework to career goals.
 
@@ -446,26 +447,24 @@ async function sendMessage(text) {
   scrollToBottom();
 
   try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
+    const messages = [
+      { role: 'system', content: SYSTEM_PROMPT },
+      ...history
+    ];
+
+    const res = await fetch('https://text.pollinations.ai/openai', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': API_KEY,
-        'anthropic-version': '2023-06-01',
-        'anthropic-dangerous-direct-browser-access': 'true'
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 1500,
-        system: SYSTEM_PROMPT,
-        stream: true,
-        messages: history
+        model: 'openai',
+        messages,
+        stream: true
       })
     });
 
     if (!res.ok) {
-      const err = await res.json().catch(()=>({}));
-      throw new Error(err?.error?.message || `API error ${res.status}`);
+      const err = await res.text().catch(()=>'');
+      throw new Error(err || `API error ${res.status}`);
     }
 
     const reader  = res.body.getReader();
@@ -482,9 +481,9 @@ async function sendMessage(text) {
         const data = line.slice(6).trim();
         if (data === '[DONE]') continue;
         try {
-          const json = JSON.parse(data);
-          if (json.type === 'content_block_delta' && json.delta?.text) {
-            fullText += json.delta.text;
+          const delta = JSON.parse(data).choices?.[0]?.delta?.content;
+          if (delta) {
+            fullText += delta;
             bubble.innerHTML = renderMarkdown(fullText) + '<span class="cursor"></span>';
             scrollToBottom();
           }
